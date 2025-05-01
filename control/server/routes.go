@@ -2,10 +2,9 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-
-	"fmt"
 	"time"
 
 	"github.com/coder/websocket"
@@ -28,10 +27,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins if needed
+		w.Header().
+			Set("Access-Control-Allow-Origin", "*")
+			// Replace "*" with specific origins if needed
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
+		w.Header().
+			Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
+		w.Header().
+			Set("Access-Control-Allow-Credentials", "false")
+			// Set to "true" if credentials are required
 
 		// Handle preflight OPTIONS requests
 		if r.Method == http.MethodOptions {
@@ -58,7 +62,9 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := json.Marshal(s.db.Health())
+	stats := make(map[string]map[string]string)
+	stats["db"] = s.db.Health()
+	resp, err := json.MarshalIndent(stats, "", " ")
 	if err != nil {
 		http.Error(w, "Failed to marshal health check response", http.StatusInternalServerError)
 		return

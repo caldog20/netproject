@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
-	"calnet_server/internal/server"
+	_ "github.com/joho/godotenv/autoload"
+
+	"calnet_server/control/control_service"
+	"calnet_server/control/database"
+	"calnet_server/control/server"
 )
 
-func gracefulShutdown(apiServer *http.Server, done chan bool) {
+func gracefulShutdown(apiServer *http.Server, db database.Service, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -30,28 +35,42 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 		log.Printf("Server forced to shutdown with error: %v", err)
 	}
 
-	log.Println("Server exiting")
+	if err := db.Close(); err != nil {
+		log.Printf("error closing database: %s", err)
+	}
 
+	log.Println("Server exiting")
 	// Notify the main goroutine that the shutdown is complete
 	done <- true
 }
 
 func main() {
+	// Initialize dependencies
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Fatalf("Invalid PORT environment variable: %v", err)
+	}
 
-	server := server.NewServer()
+	// Initialize database
+	db := database.New()
+
+	// Initialize control service
+	controlService := control_service.New(db)
+
+	// Create server with dependencies
+	srv := server.NewServer(port, db, controlService)
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go gracefulShutdown(srv, db, done)
 
-	err := server.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		panic(fmt.Sprintf("http server error: %s", err))
+		log.Fatalf("Server failed to start: %v", err)
 	}
 
-	// Wait for the graceful shutdown to complete
+	// Wait for graceful shutdown to complete
 	<-done
-	log.Println("Graceful shutdown complete.")
 }

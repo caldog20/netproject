@@ -11,7 +11,7 @@ build:
 
 # Run the application
 run:
-	@go run cmd/api/main.go
+	@go run cmd/control/main.go
 
 # Test the application
 test:
