@@ -33,3 +33,7 @@ main
 .DS_Store
 
 NOTES.md
+
+# Sqlite Database Files
+*.db
+*.db-*

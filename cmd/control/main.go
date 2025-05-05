@@ -70,7 +70,6 @@ func main() {
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed to start: %v", err)
 	}
-
 	// Wait for graceful shutdown to complete
 	<-done
 }

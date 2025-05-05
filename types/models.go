@@ -6,7 +6,7 @@ import (
 )
 
 type LoginRequest struct {
-	NodeKey keys.PublicKey
+	NodeKey keys.PublicKey `json:"node_key"`
 }
 
 type LoginResponse struct {
@@ -18,11 +18,15 @@ type LoginResponse struct {
 	// AuthURL string `json:"auth_url"`
 }
 
-type UpdateRequest struct{}
+type UpdateRequest struct {
+	NodeKey    keys.PublicKey `json:"node_key"`
+	FullUpdate bool           `json:"full_update"`
+}
 
 type UpdateResponse struct {
-	Config *NodeConfig `json:"config;omitempty"`
-	Peers  []Peer      `json:"peers"`
+	Config    *NodeConfig `json:"config;omitempty"`
+	Peers     []Peer      `json:"peers"`
+	PeerCount int         `json:"peer_count"`
 }
 
 type NodeConfig struct {
@@ -36,3 +40,4 @@ type Peer struct {
 	IP        string         `json:"ip"`
 	PublicKey keys.PublicKey `json:"public_key"`
 }
+

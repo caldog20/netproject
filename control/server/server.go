@@ -29,8 +29,8 @@ func NewServer(port int, db database.Service, control control_service.Service) *
 		Addr:         fmt.Sprintf(":%d", srv.port),
 		Handler:      srv.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  120 * time.Second,
+		WriteTimeout: 120 * time.Second,
 	}
 
 	return server

@@ -66,7 +66,7 @@ func (s *service) createTables(ctx context.Context) error {
 		ip TEXT NOT NULL,
 		prefix TEXT NOT NULL,
 		public_key TEXT NOT NULL,
-		key_expiry DATETIME NOT NULL
+		key_expiry DATETIME NOT NULL,
 		created_at DATETIME NOT NULL,
 		updated_at DATETIME NOT NULL
 	);
@@ -174,7 +174,7 @@ func (s *service) Close() error {
 
 // GetNode retrieves a node from the database by its public key
 func (s *service) GetNode(ctx context.Context, nodeKey keys.PublicKey) (*models.Node, error) {
-	query := `SELECT id, ip, public_key, key_expiry, created_at, updated_at FROM nodes WHERE public_key = ?`
+	query := `SELECT id, ip, prefix, public_key, key_expiry, created_at, updated_at FROM nodes WHERE public_key = ?`
 	row := s.db.QueryRowContext(ctx, query, nodeKey.EncodeToString())
 
 	var node models.Node
@@ -212,7 +212,7 @@ func (s *service) GetNode(ctx context.Context, nodeKey keys.PublicKey) (*models.
 
 // GetNodes retrieves all nodes from the database
 func (s *service) GetNodes(ctx context.Context) ([]models.Node, error) {
-	query := `SELECT id, ip, public_key, key_expiry, created_at, updated_at FROM nodes`
+	query := `SELECT id, ip, prefix, public_key, key_expiry, created_at, updated_at FROM nodes`
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query nodes: %w", err)
@@ -259,7 +259,7 @@ func (s *service) GetNodes(ctx context.Context) ([]models.Node, error) {
 
 // CreateNode inserts a new node into the database
 func (s *service) CreateNode(ctx context.Context, node *models.Node) error {
-	query := `INSERT INTO nodes (ip, public_key, key_expiry, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO nodes (ip, prefix, public_key, key_expiry, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	node.CreatedAt = now
@@ -288,7 +288,7 @@ func (s *service) CreateNode(ctx context.Context, node *models.Node) error {
 
 // UpdateNode updates an existing node in the database
 func (s *service) UpdateNode(ctx context.Context, node *models.Node) error {
-	query := `UPDATE nodes SET ip = ?, public_key = ?, key_expiry = ?, updated_at = ? WHERE id = ?`
+	query := `UPDATE nodes SET ip = ?, prefix = ?, public_key = ?, key_expiry = ?, updated_at = ? WHERE id = ?`
 
 	node.UpdatedAt = time.Now()
 
