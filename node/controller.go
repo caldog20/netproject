@@ -180,12 +180,12 @@ func (c *Controller) ProcessPeerUpdate(update []types.Peer, count int) {
 }
 
 func (c *Controller) AddPeer(peer types.Peer) {
-	newPeer := &Peer{
-		id:  peer.ID,
-		ip:  netip.MustParseAddr(peer.IP),
-		mux: c.mux,
-		tun: c.tun,
-	}
+	newPeer := NewPeer(
+		peer.ID,
+		netip.MustParseAddr(peer.IP),
+		c.mux,
+		c.tun,
+	)
 
 	c.mux.RegisterPeer(newPeer)
 	c.peersByID[newPeer.id] = newPeer

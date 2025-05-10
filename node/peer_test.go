@@ -4,6 +4,7 @@ import (
 	"calnet_server/keys"
 	"calnet_server/testrelay"
 	"fmt"
+	"net/netip"
 	"os"
 	"testing"
 	"time"
@@ -40,8 +41,8 @@ func TestMain(m *testing.M) {
 	mux1.Bind()
 	mux2.Bind()
 
-	peer1 = NewPeer(nodeID2, mux1)
-	peer2 = NewPeer(nodeID1, mux2)
+	peer1 = NewPeer(nodeID2, netip.MustParseAddr("100.70.0.1"), mux1, nil)
+	peer2 = NewPeer(nodeID1, netip.MustParseAddr("100.70.0.1"), mux2, nil)
 
 	mux1.RegisterPeer(peer1)
 	mux2.RegisterPeer(peer2)

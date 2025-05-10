@@ -53,10 +53,11 @@ type Peer struct {
 	lastEndpointSync   time.Time
 }
 
-func NewPeer(id uint64, mux *UdpMux) *Peer {
+func NewPeer(id uint64, ip netip.Addr, mux *UdpMux, tun Tun) *Peer {
 	return &Peer{
 		id:         id,
 		mux:        mux,
+		ip: ip,
 		candidates: make(map[netip.AddrPort]*candidate),
 	}
 }
