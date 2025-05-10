@@ -259,11 +259,13 @@ func (p *Peer) handleEndpointResponse(b []byte) {
 }
 
 func (p *Peer) maybePruneCandidate(c *candidate) bool {
-	// if c.receivedPong.Second() > 20 {
-	// 	if c.attempts > 3 {
-	// 		return true
-	// 	}
-	// }
+	if time.Since(c.lastPing).Seconds() <=5 {
+		if c.receivedPong.IsZero() || time.Since(c.receivedPong).Seconds() > 20 {
+			if c.attempts >=3 {
+				return true
+			}
+		}
+	}
 	return false
 }
 

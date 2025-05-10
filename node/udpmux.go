@@ -317,8 +317,13 @@ func (m *UdpMux) handleStun(msg *stun.Message) {
 }
 
 func (m *UdpMux) read(buf []byte) (n int, addr netip.AddrPort, err error) {
+	// TODO: Fix locking here
 	// m.mu.Lock()
 	// defer m.mu.Unlock()
+	if !m.bindActive || m.conn == nil {
+		err = ErrBindInactive
+		return
+	}
 	udpConn := m.conn.(*net.UDPConn)
 	n, addr, err = udpConn.ReadFromUDPAddrPort(buf)
 	if err != nil {
