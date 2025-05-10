@@ -218,6 +218,9 @@ func (c *Controller) startTunLoop() {
 			}
 			dstIP, ok := netip.AddrFromSlice(ipHeader.Dst)
 			dstIP = dstIP.Unmap()
+			if !c.config.NodePrefix.Contains(dstIP) {
+				continue
+			}
 			log.Println("tun dst ip - ", dstIP)
 			if !ok {
 				continue
