@@ -58,6 +58,7 @@ func NewPeer(id uint64, ip netip.Addr, mux *UdpMux, tun Tun) *Peer {
 		id:         id,
 		mux:        mux,
 		ip: ip,
+		tun: tun,
 		candidates: make(map[netip.AddrPort]*candidate),
 	}
 }
@@ -80,6 +81,8 @@ func (p *Peer) inboundPacket(b []byte, addr netip.AddrPort) {
 			log.Printf("unknown discovery packet from udp: %d", msgtype)
 		}
 	}
+	// Assuming it's a data packet for now, verified by noise decrypt later
+	p.tun.Write(b)
 }
 
 func (p *Peer) inboundRelayPacket(b []byte) {
